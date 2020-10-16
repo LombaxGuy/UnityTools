@@ -22,46 +22,14 @@ public class CustomEvents
         }
     }
 
-    protected virtual void RaiseEvent(string className, string eventName, bool isSilent, EventHandler<int> Event, int intParameter)
+    protected virtual void RaiseEvent<T>(string className, string eventName, bool isSilent, EventHandler<T> Event, T parameter)
     {
         if (Event != null)
         {
             if (!isSilent)
-                Debug.Log(className + ": The event '" + eventName + "' was raised: " + intParameter);
+                Debug.Log(className + ": The event '" + eventName + "' was raised: " + parameter);
 
-            Event.Invoke(intParameter);
-        }
-        else
-        {
-            if (!isSilent)
-                Debug.Log(className + ": The event '" + eventName + "' was not raised because nothing subscibes to it.");
-        }
-    }
-
-    protected virtual void RaiseEvent(string className, string eventName, bool isSilent, EventHandler<GameObject> Event, GameObject gameObjectParameter)
-    {
-        if (Event != null)
-        {
-            if (!isSilent)
-                Debug.Log(className + ": The event '" + eventName + "' was raised: " + gameObjectParameter);
-
-            Event.Invoke(gameObjectParameter);
-        }
-        else
-        {
-            if (!isSilent)
-                Debug.Log(className + ": The event '" + eventName + "' was not raised because nothing subscibes to it.");
-        }
-    }
-
-    protected virtual void RaiseEvent(string className, string eventName, bool isSilent, EventHandler<Rigidbody> Event, Rigidbody rigidbodyParamerter)
-    {
-        if (Event != null)
-        {
-            if (!isSilent)
-                Debug.Log(className + ": The event '" + eventName + "' was raised: " + rigidbodyParamerter);
-
-            Event.Invoke(rigidbodyParamerter);
+            Event.Invoke(parameter);
         }
         else
         {
