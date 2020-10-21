@@ -20,10 +20,16 @@ DebugPoint script & prefab <br>
 DebugRay struct <br>
 InGameDebug script & prefab for displaying log messages ingame <br>
 
+\- Cinemachine extensions \- <br>
+LockCameraAxis for locking virtual cameras to specfic positions on the x, y and z axis.
 
 <B>Change log</B>
 
-<B>\- 1.1 \-</B>
+<B>\- 1.2 (In development)\-</B>
+Added:
+- Cinemachine extension for locking virtual cameras to specfic positions has been added. (requieres Cinemachine & my Conditional field attribute)
+
+<B>\- 1.1 (Latest release)\-</B>
 
 Changed:
 - The Conditional field attribute should now work for all types that Unity can serialize.
