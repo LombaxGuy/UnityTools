@@ -21,13 +21,17 @@ DebugRay struct <br>
 InGameDebug script & prefab for displaying log messages ingame <br>
 
 \- Cinemachine extensions \- <br>
-LockCameraAxis for locking virtual cameras to specfic positions on the x, y and z axis.
+LockCameraAxis for locking virtual cameras to specfic positions on the x, y and z axis. <br>
+
+\- Unity extensions \- <br>
+Vector3 extension for creating random directional vectors.
 
 <B>Change log</B>
 
 <B>\- 1.2 (In development)\-</B>
 Added:
 - Cinemachine extension for locking virtual cameras to specfic positions has been added. (requieres Cinemachine & my Conditional field attribute)
+- Vector3 extension for creating a random directional vector.
 
 <B>\- 1.1 (Latest release)\-</B>
 
