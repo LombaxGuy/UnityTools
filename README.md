@@ -34,6 +34,7 @@ Type extension for checking if a type is numeric. <br>
 <B>Change log</B>
 
 <B>\- 1.2 (Latest release)\-</B>
+
 Added:
 - Cinemachine extension for locking virtual cameras to specfic positions has been added. (requieres Cinemachine & my Conditional field attribute)
 - Vector3 extension for creating a random directional vector.
