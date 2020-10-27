@@ -1,18 +1,21 @@
 ﻿using UnityEngine;
 
-public static class Vector3Extensions
+namespace UnityTools
 {
-    /// <summary>
-    /// Returns a random normalized Vector3.
-    /// </summary>
-    public static Vector3 RandomDirection(this Vector3 vector)
+    public static class Vector3Extensions
     {
-        vector.x = Random.Range(-1f, 1f);
-        vector.y = Random.Range(-1f, 1f);
-        vector.z = Random.Range(-1f, 1f);
+        /// <summary>
+        /// Returns a random normalized Vector3.
+        /// </summary>
+        public static Vector3 RandomDirection(this Vector3 vector)
+        {
+            vector.x = Random.Range(-1f, 1f);
+            vector.y = Random.Range(-1f, 1f);
+            vector.z = Random.Range(-1f, 1f);
 
-        vector.Normalize();
+            vector.Normalize();
 
-        return vector;
+            return vector;
+        }
     }
 }
