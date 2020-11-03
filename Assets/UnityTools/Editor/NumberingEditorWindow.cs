@@ -3,8 +3,25 @@ using System.Collections;
 using UnityEngine;
 using UnityEditor;
 
-public class AddGameObjectNumbering : Editor
+public class NumberingEditorWindow : EditorWindow
 {
+    public enum AffixType { Suffix, Prefix }
+
+    private static bool useSelectedOrder = false;
+    private static int startValue = 0;
+    private static AffixType affixType = AffixType.Suffix;
+    private static string affix = "xx";
+
+    [MenuItem("Tools/UnityTools/Numbering settings")]
+    private static void Initialize()
+    {
+        NumberingEditorWindow window = (NumberingEditorWindow)EditorWindow.GetWindow(typeof(NumberingEditorWindow));
+
+        window.minSize = new Vector2(225f, 125f);
+
+        window.Show();
+    }
+
     // hotkey ctrl, alt, R
     [MenuItem("Tools/UnityTools/Add Numbering %&r")]
     private static void AddNumbersToSelected()
@@ -15,27 +32,32 @@ public class AddGameObjectNumbering : Editor
         if (selected.Length <= 0)
             return;
 
-        NumberingSettings settings = (NumberingSettings)Resources.Load("Settings/NumberingSettings");
-
         // reorder the array if we want to use the order in the hierarchy
-        if (!settings.renameInSelectedOrder)
+        if (!useSelectedOrder)
         {
             Array.Sort(selected, new GameObjectComparer());
         }
 
+        Undo.SetCurrentGroupName("GameObject numbering");
+        int undoIndex = Undo.GetCurrentGroup();
+
         for (int i = 0; i < selected.Length; i++)
         {
-            if (settings.numberingPlacement == NumberingSettings.NamingScheme.Prefix)
+            if (affixType == AffixType.Prefix)
             {
+                Undo.RecordObject(selected[i], "Prefix added...");
                 // add prefix to name
-                selected[i].name = ConvertIntToFormattedString(settings.startValue + i, settings.prefix) + selected[i].name; 
+                selected[i].name = ConvertIntToFormattedString(startValue + i, affix) + "_" + selected[i].name;
             }
             else
             {
+                Undo.RecordObject(selected[i], "Suffix added...");
                 // add suffix to name
-                selected[i].name += ConvertIntToFormattedString(settings.startValue + i, settings.suffix);
+                selected[i].name = selected[i].name + "_" + ConvertIntToFormattedString(startValue + i, affix);
             }
         }
+
+        Undo.CollapseUndoOperations(undoIndex);
     }
 
     private static string ConvertIntToFormattedString(int value, string templateString)
@@ -93,6 +115,26 @@ public class AddGameObjectNumbering : Editor
         return new string(resultArray);
     }
 
+    private void OnGUI()
+    {
+        GUILayout.Label("General settings", EditorStyles.boldLabel);
+
+        GUIContent content = new GUIContent("Use Selected Order", "Give objects in the hierarchy numbers base on the order in which they were selected.");
+        useSelectedOrder = EditorGUILayout.Toggle(content, useSelectedOrder);
+
+        content = new GUIContent("Start Value", "The number we start incrementing from.");
+        startValue = EditorGUILayout.IntField(content, startValue);
+
+        GUILayout.Space(10);
+
+        GUILayout.Label("Affix settings", EditorStyles.boldLabel);
+
+        content = new GUIContent("Affix Type", "The type of affix to use when numbering.");
+        affixType = (AffixType)EditorGUILayout.EnumPopup(content, affixType);
+
+        content = new GUIContent("Affix", "The template used for numbering. All 'x's will be replace by a number. (xxx or XXX)");
+        affix = EditorGUILayout.TextField(content, affix);
+    }
 }
 
 public class GameObjectComparer : IComparer
