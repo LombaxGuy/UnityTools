@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEditor.Callbacks;
+using UnityTools.Extensions;
 
 namespace UnityTools.Build
 {
@@ -12,9 +13,9 @@ namespace UnityTools.Build
 
             string[] versionNumbers = version.Split('.');
 
-            int number = int.Parse(versionNumbers[versionNumbers.Length - 1]) + 1;
+            int number = int.Parse(versionNumbers.GetLast()) + 1;
 
-            versionNumbers[versionNumbers.Length - 1] = number.ToString();
+            versionNumbers.SetLast(number.ToString());
 
             PlayerSettings.bundleVersion = string.Join(".", versionNumbers);
         }
