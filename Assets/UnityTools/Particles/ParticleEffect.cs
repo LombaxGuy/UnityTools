@@ -1,27 +1,28 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class ParticleEffect : MonoBehaviour
+namespace UnityTools
 {
-    [SerializeField] private GameObject particlePrefab;
-    [SerializeField] private bool keepRotation = false;
-    private Transform _transform;
-
-    private void Start()
+    public class ParticleEffect : MonoBehaviour
     {
-        _transform = transform;
-    }
+        [SerializeField] private GameObject particlePrefab;
+        [SerializeField] private bool keepRotation = false;
+        private Transform _transform;
 
-    public void Instantiate()
-    {
-        if (keepRotation)
+        private void Start()
         {
-            Instantiate(particlePrefab, _transform.position, _transform.rotation);
+            _transform = transform;
         }
-        else
+
+        public void Instantiate()
         {
-            Instantiate(particlePrefab, _transform.position, Quaternion.identity);
+            if (keepRotation)
+            {
+                Instantiate(particlePrefab, _transform.position, _transform.rotation);
+            }
+            else
+            {
+                Instantiate(particlePrefab, _transform.position, Quaternion.identity);
+            }
         }
     }
 }

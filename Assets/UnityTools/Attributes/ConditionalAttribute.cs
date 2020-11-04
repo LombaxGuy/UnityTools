@@ -1,28 +1,31 @@
 ﻿using System;
 using UnityEngine;
 
-public enum ComparisonType
+namespace UnityTools.Attributes
 {
-    Equal,
-    NotEqual,
-    GreaterThan,
-    SmallerThan,
-    GreaterOrEqual,
-    SmallerOrEqual
-}
-
-[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
-public class ConditionalAttribute : PropertyAttribute
-{
-    public string FieldName { get; private set; }
-    public object ComparedToValue { get; private set; }
-    public ComparisonType ComparisonType { get; private set; }
-
-
-    public ConditionalAttribute(string fieldName, ComparisonType comparisonType, object comparedToValue)
+    public enum ComparisonType
     {
-        FieldName = fieldName;
-        ComparisonType = comparisonType;
-        ComparedToValue = comparedToValue;
+        Equal,
+        NotEqual,
+        GreaterThan,
+        SmallerThan,
+        GreaterOrEqual,
+        SmallerOrEqual
+    }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
+    public class ConditionalAttribute : PropertyAttribute
+    {
+        public string FieldName { get; private set; }
+        public object ComparedToValue { get; private set; }
+        public ComparisonType ComparisonType { get; private set; }
+
+
+        public ConditionalAttribute(string fieldName, ComparisonType comparisonType, object comparedToValue)
+        {
+            FieldName = fieldName;
+            ComparisonType = comparisonType;
+            ComparedToValue = comparedToValue;
+        }
     }
 }

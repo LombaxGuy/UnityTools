@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class ReadOnlyAttribute : PropertyAttribute
+namespace UnityTools.Attributes
 {
-    
+    public class ReadOnlyAttribute : PropertyAttribute { }
 }

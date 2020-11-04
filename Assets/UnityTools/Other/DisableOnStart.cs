@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 
-public class DisableOnStart : MonoBehaviour
+namespace UnityTools
 {
-    #region Start & Awake
-    private void Start()
+    public class DisableOnStart : MonoBehaviour
     {
-        gameObject.SetActive(false);
+        #region Start & Awake
+        private void Start()
+        {
+            gameObject.SetActive(false);
+        }
+        #endregion
     }
-    #endregion
 }

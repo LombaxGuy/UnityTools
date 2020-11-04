@@ -1,47 +1,51 @@
 ﻿using UnityEngine;
 using Cinemachine;
+using UnityTools.Attributes;
 
-[ExecuteInEditMode]
-[SaveDuringPlay]
-[AddComponentMenu("")] // Hide in menu
-public class LockCameraAxis : CinemachineExtension
+namespace UnityTools.Cinemachine
 {
-    public bool lockX = false;
-    [Conditional("lockX", ComparisonType.Equal, true)]
-    public float xPosition = 0;
-
-    public bool lockY = false;
-    [Conditional("lockY", ComparisonType.Equal, true)]
-    public float yPosition = 0;
-
-    public bool lockZ = false;
-    [Conditional("lockZ", ComparisonType.Equal, true)]
-    public float zPosition = 0;
-
-    protected override void PostPipelineStageCallback(
-        CinemachineVirtualCameraBase vcam,
-        CinemachineCore.Stage stage, ref CameraState state, float deltaTime)
+    [ExecuteInEditMode]
+    [SaveDuringPlay]
+    [AddComponentMenu("")] // Hide in menu
+    public class LockCameraAxis : CinemachineExtension
     {
-        if (stage == CinemachineCore.Stage.Body)
+        public bool lockX = false;
+        [Conditional("lockX", ComparisonType.Equal, true)]
+        public float xPosition = 0;
+
+        public bool lockY = false;
+        [Conditional("lockY", ComparisonType.Equal, true)]
+        public float yPosition = 0;
+
+        public bool lockZ = false;
+        [Conditional("lockZ", ComparisonType.Equal, true)]
+        public float zPosition = 0;
+
+        protected override void PostPipelineStageCallback(
+            CinemachineVirtualCameraBase vcam,
+            CinemachineCore.Stage stage, ref CameraState state, float deltaTime)
         {
-            var pos = state.RawPosition;
-
-            if (lockX)
+            if (stage == CinemachineCore.Stage.Body)
             {
-                pos.x = xPosition;
-            }
+                var pos = state.RawPosition;
 
-            if (lockY)
-            {
-                pos.y = yPosition;
-            }
+                if (lockX)
+                {
+                    pos.x = xPosition;
+                }
 
-            if (lockZ)
-            {
-                pos.z = zPosition;
-            }
+                if (lockY)
+                {
+                    pos.y = yPosition;
+                }
 
-            state.RawPosition = pos;
+                if (lockZ)
+                {
+                    pos.z = zPosition;
+                }
+
+                state.RawPosition = pos;
+            }
         }
     }
 }

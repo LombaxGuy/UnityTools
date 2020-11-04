@@ -1,50 +1,49 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class InGameDebug : MonoBehaviour
+namespace UnityTools.Debugging
 {
-    [SerializeField] private TextMeshProUGUI logText;
-
-    [SerializeField] private TextMeshProUGUI cameraPos;
-
-    private void OnEnable()
+    public class InGameDebug : MonoBehaviour
     {
-        Application.logMessageReceived += OnLogMessageReceived;
-    }
+        [SerializeField] private TextMeshProUGUI logText;
+        [SerializeField] private TextMeshProUGUI cameraPos;
 
-    private void OnDisable()
-    {
-        Application.logMessageReceived -= OnLogMessageReceived;
-    }
-
-    private void Update()
-    {
-        if (Camera.main != null)
+        private void OnEnable()
         {
-            cameraPos.text = "CameraPos: " + Camera.main.transform.position.ToString();
+            Application.logMessageReceived += OnLogMessageReceived;
         }
-    }
 
-    public void Pause()
-    {
-        Time.timeScale = 0;
-    }
-
-    public void Resume()
-    {
-        Time.timeScale = 1;
-    }
-
-    private void OnLogMessageReceived(string logMessage, string stackTrace, LogType logType)
-    {
-        logText.text += logType + ": " + logMessage + "\n";
-
-        if (logType == LogType.Exception || logType == LogType.Error)
+        private void OnDisable()
         {
-            logText.text += stackTrace + "\n";
+            Application.logMessageReceived -= OnLogMessageReceived;
+        }
+
+        private void Update()
+        {
+            if (Camera.main != null)
+            {
+                cameraPos.text = "CameraPos: " + Camera.main.transform.position.ToString();
+            }
+        }
+
+        public void Pause()
+        {
+            Time.timeScale = 0;
+        }
+
+        public void Resume()
+        {
+            Time.timeScale = 1;
+        }
+
+        private void OnLogMessageReceived(string logMessage, string stackTrace, LogType logType)
+        {
+            logText.text += logType + ": " + logMessage + "\n";
+
+            if (logType == LogType.Exception || logType == LogType.Error)
+            {
+                logText.text += stackTrace + "\n";
+            }
         }
     }
 }

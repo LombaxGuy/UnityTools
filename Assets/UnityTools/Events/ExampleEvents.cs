@@ -1,24 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityTools.Events;
 
-public class GameEvents : CustomEvents
+public class ExampleEvents : CustomEvents
 {
     #region Singleton
-    private static GameEvents instance;
+    private static ExampleEvents instance;
 
-    public static GameEvents Instance
+    public static ExampleEvents Instance
     {
         get
         {
             if (instance == null)
-                instance = new GameEvents();
+                instance = new ExampleEvents();
 
             return instance;
         }
     }
 
-    protected GameEvents() { }
+    protected ExampleEvents() { }
     #endregion
 
     // If this is false, each event is displayed in the console when they are raised

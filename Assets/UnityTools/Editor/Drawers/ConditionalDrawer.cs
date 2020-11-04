@@ -1,8 +1,9 @@
 ﻿using System;
 using UnityEngine;
 using UnityEditor;
+using UnityTools.Extensions;
 
-namespace UnityTools
+namespace UnityTools.Attributes
 {
     [CustomPropertyDrawer(typeof(ConditionalAttribute))]
     public class ConditionalDrawer : PropertyDrawer

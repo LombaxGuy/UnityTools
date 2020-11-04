@@ -1,40 +1,42 @@
-﻿using UnityEditor.MemoryProfiler;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class CustomEvents
+namespace UnityTools.Events
 {
-    public delegate void EventHandler();
-    public delegate void EventHandler<T>(T parameter);
-
-    protected virtual void RaiseEvent(string className, string eventName, bool isSilent, EventHandler Event)
+    public class CustomEvents
     {
-        if (Event != null)
-        {
-            if (!isSilent)
-                Debug.Log(className + ": The event '" + eventName + "' was raised.");
+        public delegate void EventHandler();
+        public delegate void EventHandler<T>(T parameter);
 
-            Event.Invoke();
-        }
-        else
+        protected virtual void RaiseEvent(string className, string eventName, bool isSilent, EventHandler Event)
         {
-            if (!isSilent)
-                Debug.Log(className + ": The event '" + eventName + "' was not raised because nothing subscibes to it.");
-        }
-    }
+            if (Event != null)
+            {
+                if (!isSilent)
+                    Debug.Log(className + ": The event '" + eventName + "' was raised.");
 
-    protected virtual void RaiseEvent<T>(string className, string eventName, bool isSilent, EventHandler<T> Event, T parameter)
-    {
-        if (Event != null)
-        {
-            if (!isSilent)
-                Debug.Log(className + ": The event '" + eventName + "' was raised: " + parameter);
-
-            Event.Invoke(parameter);
+                Event.Invoke();
+            }
+            else
+            {
+                if (!isSilent)
+                    Debug.Log(className + ": The event '" + eventName + "' was not raised because nothing subscibes to it.");
+            }
         }
-        else
+
+        protected virtual void RaiseEvent<T>(string className, string eventName, bool isSilent, EventHandler<T> Event, T parameter)
         {
-            if (!isSilent)
-                Debug.Log(className + ": The event '" + eventName + "' was not raised because nothing subscibes to it.");
+            if (Event != null)
+            {
+                if (!isSilent)
+                    Debug.Log(className + ": The event '" + eventName + "' was raised: " + parameter);
+
+                Event.Invoke(parameter);
+            }
+            else
+            {
+                if (!isSilent)
+                    Debug.Log(className + ": The event '" + eventName + "' was not raised because nothing subscibes to it.");
+            }
         }
     }
 }

@@ -3,167 +3,170 @@ using System.Collections;
 using UnityEngine;
 using UnityEditor;
 
-public class NumberingEditorWindow : EditorWindow
+namespace UnityTools
 {
-    public enum AffixType { Suffix, Prefix }
-
-    private static bool useSelectedOrder = false;
-    private static int startValue = 1;
-    private static AffixType affixType = AffixType.Suffix;
-    private static int digits = 2;
-
-    private static string seperator = "_";
-
-    [MenuItem("Tools/UnityTools/Numbering settings")]
-    private static void Initialize()
+    public class NumberingEditorWindow : EditorWindow
     {
-        NumberingEditorWindow window = (NumberingEditorWindow)EditorWindow.GetWindow(typeof(NumberingEditorWindow));
+        public enum AffixType { Suffix, Prefix }
 
-        window.minSize = new Vector2(225f, 125f);
+        private static bool useSelectedOrder = false;
+        private static int startValue = 1;
+        private static AffixType affixType = AffixType.Suffix;
+        private static int digits = 2;
 
-        window.Show();
-    }
+        private static string seperator = "_";
 
-    // hotkey ctrl, alt, R
-    [MenuItem("Tools/UnityTools/Add Numbering %&r")]
-    private static void AddNumbersToSelected()
-    {
-        GameObject[] selected = Selection.gameObjects;
-
-        // if not objects are selected, return
-        if (selected.Length <= 0)
-            return;
-
-        // reorder the array if we want to use the order in the hierarchy
-        if (!useSelectedOrder)
+        [MenuItem("Tools/UnityTools/Numbering settings")]
+        private static void Initialize()
         {
-            Array.Sort(selected, new SiblingIndexComparer());
+            NumberingEditorWindow window = (NumberingEditorWindow)EditorWindow.GetWindow(typeof(NumberingEditorWindow));
+
+            window.minSize = new Vector2(225f, 125f);
+
+            window.Show();
         }
 
-        Undo.SetCurrentGroupName("GameObject numbering");
-        int undoIndex = Undo.GetCurrentGroup();
-
-        for (int i = 0; i < selected.Length; i++)
+        // hotkey ctrl, alt, R
+        [MenuItem("Tools/UnityTools/Add Numbering %&r")]
+        private static void AddNumbersToSelected()
         {
-            if (affixType == AffixType.Prefix)
-            {
-                Undo.RecordObject(selected[i], "Prefix added...");
+            GameObject[] selected = Selection.gameObjects;
 
-                // add prefix to name
-                if (IsSeperatorBrackets())
+            // if not objects are selected, return
+            if (selected.Length <= 0)
+                return;
+
+            // reorder the array if we want to use the order in the hierarchy
+            if (!useSelectedOrder)
+            {
+                Array.Sort(selected, new SiblingIndexComparer());
+            }
+
+            Undo.SetCurrentGroupName("GameObject numbering");
+            int undoIndex = Undo.GetCurrentGroup();
+
+            for (int i = 0; i < selected.Length; i++)
+            {
+                if (affixType == AffixType.Prefix)
                 {
-                    selected[i].name = seperator + ConvertIntToFormattedString(startValue + i) + GetCloseBrackets() + " " + selected[i].name;
+                    Undo.RecordObject(selected[i], "Prefix added...");
+
+                    // add prefix to name
+                    if (IsSeperatorBrackets())
+                    {
+                        selected[i].name = seperator + ConvertIntToFormattedString(startValue + i) + GetCloseBrackets() + " " + selected[i].name;
+                    }
+                    else
+                    {
+
+                        selected[i].name = ConvertIntToFormattedString(startValue + i) + seperator + selected[i].name;
+                    }
                 }
                 else
                 {
-                    
-                    selected[i].name = ConvertIntToFormattedString(startValue + i) + seperator + selected[i].name;
+                    Undo.RecordObject(selected[i], "Suffix added...");
+
+                    // add suffix to name
+                    if (IsSeperatorBrackets())
+                    {
+                        selected[i].name = selected[i].name + " " + seperator + ConvertIntToFormattedString(startValue + i) + GetCloseBrackets();
+                    }
+                    else
+                    {
+                        selected[i].name = selected[i].name + seperator + ConvertIntToFormattedString(startValue + i);
+                    }
+                }
+            }
+
+            Undo.CollapseUndoOperations(undoIndex);
+        }
+
+        private static string ConvertIntToFormattedString(int value)
+        {
+            string affix = "";
+            string stringValue = value.ToString();
+
+            if (stringValue.Length <= digits)
+            {
+                for (int i = stringValue.Length - 1; i >= 0; i--)
+                {
+                    affix = affix.Insert(0, stringValue[i].ToString());
+                }
+
+                int missingDigits = digits - affix.Length;
+
+                for (int i = 0; i < missingDigits; i++)
+                {
+                    affix = affix.Insert(0, "0");
                 }
             }
             else
             {
-                Undo.RecordObject(selected[i], "Suffix added...");
-
-                // add suffix to name
-                if (IsSeperatorBrackets())
+                for (int i = digits - 1; i >= 0; i--)
                 {
-                    selected[i].name = selected[i].name + " " + seperator + ConvertIntToFormattedString(startValue + i) + GetCloseBrackets();
-                }
-                else
-                {
-                    selected[i].name = selected[i].name + seperator + ConvertIntToFormattedString(startValue + i);
+                    affix = affix.Insert(0, stringValue[stringValue.Length - (1 + i)].ToString());
                 }
             }
+
+            return affix;
         }
 
-        Undo.CollapseUndoOperations(undoIndex);
-    }
-
-    private static string ConvertIntToFormattedString(int value)
-    {
-        string affix = "";
-        string stringValue = value.ToString();
-
-        if (stringValue.Length <= digits)
+        private void OnGUI()
         {
-            for (int i = stringValue.Length - 1; i >= 0; i--)
-            {
-                affix = affix.Insert(0, stringValue[i].ToString());
-            }
+            GUILayout.Label("General settings", EditorStyles.boldLabel);
 
-            int missingDigits = digits - affix.Length;
+            GUIContent content = new GUIContent("Use Selected Order", "Give objects in the hierarchy numbers base on the order in which they were selected.");
+            useSelectedOrder = EditorGUILayout.Toggle(content, useSelectedOrder);
 
-            for (int i = 0; i < missingDigits; i++)
-            {
-                affix = affix.Insert(0, "0");
-            }
+            content = new GUIContent("Start Value", "The number we start incrementing from.");
+            startValue = EditorGUILayout.IntField(content, startValue);
+
+            GUILayout.Space(10);
+
+            GUILayout.Label("Affix settings", EditorStyles.boldLabel);
+
+            content = new GUIContent("Affix Type", "The type of affix to use when numbering.");
+            affixType = (AffixType)EditorGUILayout.EnumPopup(content, affixType);
+
+            content = new GUIContent("Digits", "The number of digits in the added number.");
+            digits = EditorGUILayout.IntField(content, digits);
+
+            content = new GUIContent("Seperator", "The seperator added between the name and the number. If you want the number to be inclosed in brackets instead just put the open bracket here.");
+            seperator = EditorGUILayout.TextField(content, seperator);
         }
-        else
+
+        private static bool IsSeperatorBrackets()
         {
-            for (int i = digits - 1; i >= 0; i--)
-            {
-                affix = affix.Insert(0, stringValue[stringValue.Length - (1 + i)].ToString());
-            }
+            if (seperator == "(" || seperator == "[" || seperator == "{")
+                return true;
+            else
+                return false;
         }
 
-        return affix;
+        private static string GetCloseBrackets()
+        {
+            if (seperator == "(")
+                return ")";
+            else if (seperator == "[")
+                return "]";
+            else if (seperator == "{")
+                return "}";
+            else
+                return "";
+        }
     }
 
-    private void OnGUI()
+    public class SiblingIndexComparer : IComparer
     {
-        GUILayout.Label("General settings", EditorStyles.boldLabel);
+        public int Compare(object obj, object compareTo)
+        {
+            GameObject go1 = (GameObject)obj;
+            GameObject go2 = (GameObject)compareTo;
 
-        GUIContent content = new GUIContent("Use Selected Order", "Give objects in the hierarchy numbers base on the order in which they were selected.");
-        useSelectedOrder = EditorGUILayout.Toggle(content, useSelectedOrder);
+            int index1 = go1.transform.GetSiblingIndex();
+            int index2 = go2.transform.GetSiblingIndex();
 
-        content = new GUIContent("Start Value", "The number we start incrementing from.");
-        startValue = EditorGUILayout.IntField(content, startValue);
-
-        GUILayout.Space(10);
-
-        GUILayout.Label("Affix settings", EditorStyles.boldLabel);
-
-        content = new GUIContent("Affix Type", "The type of affix to use when numbering.");
-        affixType = (AffixType)EditorGUILayout.EnumPopup(content, affixType);
-
-        content = new GUIContent("Digits", "The number of digits in the added number.");
-        digits = EditorGUILayout.IntField(content, digits);
-
-        content = new GUIContent("Seperator", "The seperator added between the name and the number. If you want the number to be inclosed in brackets instead just put the open bracket here.");
-        seperator = EditorGUILayout.TextField(content, seperator);
-    }
-
-    private static bool IsSeperatorBrackets()
-    {
-        if (seperator == "(" || seperator == "[" || seperator == "{")
-            return true;
-        else
-            return false;
-    }
-
-    private static string GetCloseBrackets()
-    {
-        if (seperator == "(")
-            return ")";
-        else if (seperator == "[")
-            return "]";
-        else if (seperator == "{")
-            return "}";
-        else
-            return "";
-    }
-}
-
-public class SiblingIndexComparer : IComparer
-{
-    public int Compare(object obj, object compareTo)
-    {
-        GameObject go1 = (GameObject)obj;
-        GameObject go2 = (GameObject)compareTo;
-
-        int index1 = go1.transform.GetSiblingIndex();
-        int index2 = go2.transform.GetSiblingIndex();
-
-        return index1.CompareTo(index2);
+            return index1.CompareTo(index2);
+        }
     }
 }

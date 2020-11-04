@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using UnityEditor;
 
-namespace UnityTools
+namespace UnityTools.Extensions
 {
     public static class SerializedPropertyExtension
     {

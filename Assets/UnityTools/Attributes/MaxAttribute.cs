@@ -1,13 +1,17 @@
 ﻿using System;
 using UnityEngine;
 
-[AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
-public class MaxAttribute : PropertyAttribute
+namespace UnityTools.Attributes
 {
-    public readonly float maxValue;
-
-    public MaxAttribute(float maxValue)
+    [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
+    public class MaxAttribute : PropertyAttribute
     {
-        this.maxValue = maxValue;
+        public readonly float maxValue;
+
+        public MaxAttribute(float maxValue)
+        {
+            this.maxValue = maxValue;
+        }
     }
 }
+

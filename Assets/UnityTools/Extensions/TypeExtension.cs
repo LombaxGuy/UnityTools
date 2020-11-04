@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace UnityTools
+namespace UnityTools.Extensions
 {
     public static class TypeExtension
     {
