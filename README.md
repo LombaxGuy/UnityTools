@@ -21,6 +21,10 @@ DebugPoint script & prefab. <br>
 DebugRay struct. <br>
 InGameDebug script & prefab for displaying log messages ingame. <br>
 
+\- Tools \- <br>
+Tool for numbering selected gameobjects. <br>
+Build post processing script for automatically incrementing bundle id. <br>
+
 \- Cinemachine extensions \- <br>
 LockCameraAxis for locking virtual cameras to specfic positions on the x, y and z axis. <br>
 
@@ -30,10 +34,24 @@ SerializedProperty extension for getting the value of a property as an object. <
 
 \- Other extensions \- <br>
 Type extension for checking if a type is numeric. <br>
+Array extensions for getting and setting the last elements. <br>
 
 <B>Change log</B>
 
-<B>\- 1.2 (Latest release)\-</B>
+<B>\- 1.3 (Latest release)\-</B>
+
+Added:
+- Tool for numbering multiple GameObjects at once.
+- Build post processing script for automatically incrementing the bundle id when a new build is created.
+- Array extensions for getting and setting the last element of the array.
+
+Changed:
+- All scripts are now contained in namespaces.
+
+Bugfix:
+- Moved a few scripts that caused build errors into "Editor" folders.
+
+<B>\- 1.2 \-</B>
 
 Added:
 - Cinemachine extension for locking virtual cameras to specfic positions has been added. (requieres Cinemachine & my Conditional field attribute)
