@@ -8,9 +8,11 @@ public class NumberingEditorWindow : EditorWindow
     public enum AffixType { Suffix, Prefix }
 
     private static bool useSelectedOrder = false;
-    private static int startValue = 0;
+    private static int startValue = 1;
     private static AffixType affixType = AffixType.Suffix;
-    private static string affix = "xx";
+    private static int digits = 2;
+
+    private static string seperator = "_";
 
     [MenuItem("Tools/UnityTools/Numbering settings")]
     private static void Initialize()
@@ -35,7 +37,7 @@ public class NumberingEditorWindow : EditorWindow
         // reorder the array if we want to use the order in the hierarchy
         if (!useSelectedOrder)
         {
-            Array.Sort(selected, new GameObjectComparer());
+            Array.Sort(selected, new SiblingIndexComparer());
         }
 
         Undo.SetCurrentGroupName("GameObject numbering");
@@ -46,73 +48,65 @@ public class NumberingEditorWindow : EditorWindow
             if (affixType == AffixType.Prefix)
             {
                 Undo.RecordObject(selected[i], "Prefix added...");
+
                 // add prefix to name
-                selected[i].name = ConvertIntToFormattedString(startValue + i, affix) + "_" + selected[i].name;
+                if (IsSeperatorBrackets())
+                {
+                    selected[i].name = seperator + ConvertIntToFormattedString(startValue + i) + GetCloseBrackets() + " " + selected[i].name;
+                }
+                else
+                {
+                    
+                    selected[i].name = ConvertIntToFormattedString(startValue + i) + seperator + selected[i].name;
+                }
             }
             else
             {
                 Undo.RecordObject(selected[i], "Suffix added...");
+
                 // add suffix to name
-                selected[i].name = selected[i].name + "_" + ConvertIntToFormattedString(startValue + i, affix);
+                if (IsSeperatorBrackets())
+                {
+                    selected[i].name = selected[i].name + " " + seperator + ConvertIntToFormattedString(startValue + i) + GetCloseBrackets();
+                }
+                else
+                {
+                    selected[i].name = selected[i].name + seperator + ConvertIntToFormattedString(startValue + i);
+                }
             }
         }
 
         Undo.CollapseUndoOperations(undoIndex);
     }
 
-    private static string ConvertIntToFormattedString(int value, string templateString)
+    private static string ConvertIntToFormattedString(int value)
     {
-        // create a string with the value
+        string affix = "";
         string stringValue = value.ToString();
 
-        // create character arrays from the template and the value
-        char[] templateChars = templateString.ToCharArray();
-        char[] valueChars = stringValue.ToCharArray();
-
-        // find the number of digits in the template
-        int numbersCount = 0;
-        foreach (var c in templateChars)
+        if (stringValue.Length <= digits)
         {
-            if (c == 'x' || c == 'X')
-                numbersCount++;
-        }
-
-        int index = 0;
-
-        // create an int array that holds the indexes of each digit in the template string
-        int[] numberIndexes = new int[numbersCount];
-        // we start form behind as numbers has the least significant digit last
-        for (int i = templateChars.Length - 1; i >= 0; i--)
-        {
-            if (templateChars[i] == 'x' || templateChars[i] == 'X')
+            for (int i = stringValue.Length - 1; i >= 0; i--)
             {
-                numberIndexes[index] = i;
-                index++;
+                affix = affix.Insert(0, stringValue[i].ToString());
+            }
+
+            int missingDigits = digits - affix.Length;
+
+            for (int i = 0; i < missingDigits; i++)
+            {
+                affix = affix.Insert(0, "0");
+            }
+        }
+        else
+        {
+            for (int i = digits - 1; i >= 0; i--)
+            {
+                affix = affix.Insert(0, stringValue[stringValue.Length - (1 + i)].ToString());
             }
         }
 
-        index = 0;
-
-        // create character array that contains the template
-        char[] resultArray = templateString.ToCharArray();
-
-        // swap out the template characters with the value characters, again we start from behind
-        for (int i = valueChars.Length - 1; i >= 0; i--)
-        {
-            resultArray[numberIndexes[index]] = valueChars[i];
-            index++;
-        }
-
-        // replace the remaining digits with 0's
-        for (int i = 0; i < resultArray.Length; i++)
-        {
-            if (resultArray[i] == 'x' || resultArray[i] == 'X')
-            {
-                resultArray[i] = '0';
-            }
-        }
-
-        return new string(resultArray);
+        return affix;
     }
 
     private void OnGUI()
@@ -132,12 +126,35 @@ public class NumberingEditorWindow : EditorWindow
         content = new GUIContent("Affix Type", "The type of affix to use when numbering.");
         affixType = (AffixType)EditorGUILayout.EnumPopup(content, affixType);
 
-        content = new GUIContent("Affix", "The template used for numbering. All 'x's will be replace by a number. (xxx or XXX)");
-        affix = EditorGUILayout.TextField(content, affix);
+        content = new GUIContent("Digits", "The number of digits in the added number.");
+        digits = EditorGUILayout.IntField(content, digits);
+
+        content = new GUIContent("Seperator", "The seperator added between the name and the number. If you want the number to be inclosed in brackets instead just put the open bracket here.");
+        seperator = EditorGUILayout.TextField(content, seperator);
+    }
+
+    private static bool IsSeperatorBrackets()
+    {
+        if (seperator == "(" || seperator == "[" || seperator == "{")
+            return true;
+        else
+            return false;
+    }
+
+    private static string GetCloseBrackets()
+    {
+        if (seperator == "(")
+            return ")";
+        else if (seperator == "[")
+            return "]";
+        else if (seperator == "{")
+            return "}";
+        else
+            return "";
     }
 }
 
-public class GameObjectComparer : IComparer
+public class SiblingIndexComparer : IComparer
 {
     public int Compare(object obj, object compareTo)
     {
