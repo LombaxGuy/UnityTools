@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.Callbacks;
 
 namespace UnityTools
 {
@@ -13,15 +14,62 @@ namespace UnityTools
         private static int startValue = 1;
         private static AffixType affixType = AffixType.Suffix;
         private static int digits = 2;
-
         private static string seperator = "_";
+        private static bool saveOnApply = true;
+
+        private const string keyPrefix = "UnityTools.NumberingEditorWindow.";
+        private const string areKeysSetKey = "areKeysSet";
+        private const string useSelectedOrderKey = keyPrefix + "useSelectedOrder";
+        private const string startValueKey = keyPrefix + "startValue";
+        private const string affixTypeKey = keyPrefix + "affixType";
+        private const string digitsKey = keyPrefix + "digits";
+        private const string seperatorKey = keyPrefix + "seperator";
+        private const string saveOnApplyKey = keyPrefix + "saveOnApply";
+
+        private void Awake()
+        {
+            LoadEditorPrefs();
+        }
+
+        // load prefs when scripts recomplie
+        [DidReloadScripts]
+        private static void OnRecompile()
+        {
+            LoadEditorPrefs();
+        }
+
+        private static void SaveEditorPrefs()
+        {
+            // mark keys as set
+            EditorPrefs.SetBool(areKeysSetKey, true);
+
+            EditorPrefs.SetBool(useSelectedOrderKey, useSelectedOrder);
+            EditorPrefs.SetInt(startValueKey, startValue);
+            EditorPrefs.SetInt(affixTypeKey, (int)affixType);
+            EditorPrefs.SetInt(digitsKey, digits);
+            EditorPrefs.SetString(seperatorKey, seperator);
+            EditorPrefs.SetBool(saveOnApplyKey, saveOnApply);
+        }
+
+        private static void LoadEditorPrefs()
+        {
+            if (EditorPrefs.HasKey(areKeysSetKey))
+            {
+                useSelectedOrder = EditorPrefs.GetBool(useSelectedOrderKey);
+                startValue = EditorPrefs.GetInt(startValueKey);
+                affixType = (AffixType)EditorPrefs.GetInt(affixTypeKey);
+                digits = EditorPrefs.GetInt(digitsKey);
+                seperator = EditorPrefs.GetString(seperatorKey);
+                saveOnApply = EditorPrefs.GetBool(saveOnApplyKey);
+            }
+        }
 
         [MenuItem("Tools/UnityTools/Numbering settings")]
         private static void Initialize()
         {
-            NumberingEditorWindow window = (NumberingEditorWindow)EditorWindow.GetWindow(typeof(NumberingEditorWindow));
+            NumberingEditorWindow window = (NumberingEditorWindow)GetWindow(typeof(NumberingEditorWindow), false, "Numbering Settings");
 
-            window.minSize = new Vector2(225f, 125f);
+            window.minSize = new Vector2(225f, 190f);
 
             window.Show();
         }
@@ -79,6 +127,8 @@ namespace UnityTools
             }
 
             Undo.CollapseUndoOperations(undoIndex);
+
+            SaveEditorPrefs();
         }
 
         private static string ConvertIntToFormattedString(int value)
@@ -133,6 +183,18 @@ namespace UnityTools
 
             content = new GUIContent("Seperator", "The seperator added between the name and the number. If you want the number to be inclosed in brackets instead just put the open bracket here.");
             seperator = EditorGUILayout.TextField(content, seperator);
+
+            GUILayout.Space(10);
+
+            GUILayout.Label("Saving", EditorStyles.boldLabel);
+
+            content = new GUIContent("Save on apply only", "The editor settings are only saved to EditorPrefs when numbering is applied. If this settings is disabled settings are saved whenever a change is made.");
+            saveOnApply = EditorGUILayout.Toggle(content, saveOnApply);
+
+            if (!saveOnApply && GUI.changed)
+            {
+                SaveEditorPrefs();
+            }
         }
 
         private static bool IsSeperatorBrackets()
