@@ -38,6 +38,14 @@ Array extensions for getting and setting the last elements. <br>
 
 <B>Change log</B>
 
+<B>\- 1.4 (Work in progress)\-</B>
+Added:
+- DebugRay now has an Empty, an Equals and a Draw method to make it easier to use.
+
+Changed:
+- Numbering tool now saves settings in EditorPrefs.
+- AutoIncrementBundleVersion now saves settings in EditorPrefs.
+
 <B>\- 1.3 (Latest release)\-</B>
 
 Added:
