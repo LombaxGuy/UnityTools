@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Diagnostics;
+using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityTools.Extensions;
 
@@ -12,19 +13,10 @@ namespace UnityTools.Build
 
         private const string enabledKey = "UnityTools.AutoIncrementBundleVersion.enabled";
 
-        private void Awake()
-        {
-            LoadEditorPrefs();
-
-            Menu.SetChecked(menuPath, enabled);
-        }
-
-        [DidReloadScripts]
+        [InitializeOnLoadMethod]
         private static void OnRecompile()
         {
             LoadEditorPrefs();
-
-            Menu.SetChecked(menuPath, enabled);
         }
 
         private static void LoadEditorPrefs()
@@ -40,14 +32,22 @@ namespace UnityTools.Build
             EditorPrefs.SetBool(enabledKey, enabled);
         }
 
+        // Menu item
         [MenuItem(menuPath)]
         private static void ToggleAutoBuildVersionIncrement()
         {
             enabled = !enabled;
 
+            SaveEditorPrefs();
+        }
+
+        // Validate function for above menu item
+        [MenuItem(menuPath, true)]
+        private static bool ToggleAutoBuildVersionIncrementValidate()
+        {
             Menu.SetChecked(menuPath, enabled);
 
-            SaveEditorPrefs();
+            return true;
         }
 
         [PostProcessBuild]
