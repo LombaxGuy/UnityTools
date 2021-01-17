@@ -7,7 +7,7 @@ namespace UnityTools.Build
 {
     public class AutoIncrementBundleVersion : Editor
     {
-        const string menuPath = "Tools/UnityTools/Auto increment version";
+        private const string menuPath = "Tools/UnityTools/Auto increment version";
 
         private static bool enabled = true;
 
@@ -60,9 +60,9 @@ namespace UnityTools.Build
 
             string[] versionNumbers = version.Split('.');
 
-            int number = int.Parse(versionNumbers.GetLast()) + 1;
+            int number = int.Parse(versionNumbers.Last()) + 1;
 
-            versionNumbers.SetLast(number.ToString());
+            versionNumbers.Last(number.ToString());
 
             PlayerSettings.bundleVersion = string.Join(".", versionNumbers);
         }
