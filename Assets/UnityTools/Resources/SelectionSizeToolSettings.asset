@@ -12,3 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa4ac249e50cdd84baf3b82309b11882, type: 3}
   m_Name: SelectionSizeToolSettings
   m_EditorClassIdentifier: 
+  enabled: 1
+  type: 1
+  fontSize: 12
+  labelTextColor: {r: 1, g: 1, b: 1, a: 1}
+  decimals: 7
+  outlineFrameColor: {r: 1, g: 0, b: 0, a: 1}
+  outlineFaceColor: {r: 1, g: 0, b: 0, a: 0}

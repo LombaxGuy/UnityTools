@@ -1,23 +1,38 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor;
-using UnityTools.Extensions;
+using UnityEditor.Callbacks;
+using UnityTools.Attributes;
 
 public class SelectionSize : ScriptableObject
 {
+    private enum DecimalDigitCount { None = 0, One = 1, Two = 2, Three = 3, Four = 4, Five = 5, Six = 6, All = 7 }
+    private enum BoundsType { Both = 0, Renderer = 1, Collider = 2 }
+
     private const string menuPath = "Tools/UnityTools/Measuring tool";
+    private const string menuSettingsPath = "Tools/UnityTools/Measuring tool settings";
     private const string lableName = "dimensions";
     private const string settingsName = "SelectionSizeToolSettings";
     private const string settingsPath = "Assets/UnityTools/Resources/" + settingsName + ".asset";
 
     private static SelectionSize instance;
 
-    private bool enabled = false;
 
-    private float lableHeight = 20;
+    [Tooltip("Whether or not the tool is enabled. \n\nThe tool can be activated from the menu: \nTools > UnityTools > Measuring tool")]
+    [SerializeField] [ReadOnly] private bool enabled;
+
+    [Header("Settings")]
+    [SerializeField] private BoundsType type = BoundsType.Renderer;
+
+    [Header("Label")]
+    [SerializeField] private float fontSize = 12f;
+    [SerializeField] private Color labelTextColor = Color.white;
+    [Space]
+    [SerializeField] private DecimalDigitCount decimals = DecimalDigitCount.All;
+
+    [Header("Outline")]
+    [SerializeField] private Color outlineFrameColor = Color.red;
+    [SerializeField] private Color outlineFaceColor = new Color(1, 0, 0, 0);
 
     private SceneView[] sceneViews;
 
@@ -25,7 +40,7 @@ public class SelectionSize : ScriptableObject
 
     public static SelectionSize Instance
     {
-        get 
+        get
         {
             if (instance == null)
             {
@@ -51,7 +66,20 @@ public class SelectionSize : ScriptableObject
     }
 
     #region Menu methods
-    [MenuItem(menuPath)]
+    [DidReloadScripts]
+    private static void OnRecompile()
+    {
+        if (Instance.enabled)
+        {
+            Instance.Enable();
+        }
+        else
+        {
+            Instance.Disable();
+        }
+    }
+
+    [MenuItem(menuPath, priority = 1)]
     private static void ToogleMenuItem()
     {
         // toggle the enabled state of the tool
@@ -67,6 +95,14 @@ public class SelectionSize : ScriptableObject
         {
             Instance.Disable();
         }
+
+        EditorUtility.SetDirty(Instance);
+    }
+
+    [MenuItem(menuSettingsPath, priority = 2)]
+    private static void ToolSettings()
+    {
+        Selection.activeObject = Instance;
     }
 
     // Validate function for above menu item
@@ -87,9 +123,12 @@ public class SelectionSize : ScriptableObject
 
     private void Disable()
     {
-        foreach (var sceneView in sceneViews)
+        if (sceneViews != null)
         {
-            RemoveLabel(sceneView);
+            foreach (var sceneView in sceneViews)
+            {
+                RemoveLabel(sceneView);
+            }
         }
 
         EditorApplication.update -= EditorUpdate;
@@ -145,6 +184,8 @@ public class SelectionSize : ScriptableObject
         // creates a new label instance and sets its name
         Label label = new Label();
         label.name = lableName;
+        label.style.color = labelTextColor;
+        label.style.fontSize = fontSize;
 
         // adds the label to the scene view
         sceneView.rootVisualElement.Add(label);
@@ -171,8 +212,19 @@ public class SelectionSize : ScriptableObject
         // update the labels text
         label.text = BoundsToString(currentBounds);
 
+        // update the labels color
+        if (label.style.color != labelTextColor)
+        {
+            label.style.color = labelTextColor;
+        }
+
+        if (label.style.fontSize != fontSize)
+        {
+            label.style.fontSize = fontSize;
+        }
+
         // update the labels position
-        label.transform.position = new Vector3(5, sceneView.position.height - lableHeight, 0);
+        label.transform.position = new Vector3(fontSize / 2, sceneView.position.height - (fontSize + fontSize / 2), 0);
     }
     #endregion
 
@@ -190,9 +242,31 @@ public class SelectionSize : ScriptableObject
 
         foreach (var gameObject in selected)
         {
-            if (gameObject.TryGetComponent(out Renderer renderer))
+            if (type == BoundsType.Renderer)
             {
-                newBounds.Encapsulate(renderer.bounds);
+                if (gameObject.TryGetComponent(out Renderer renderer))
+                {
+                    newBounds.Encapsulate(renderer.bounds);
+                }
+            }
+            else if (type == BoundsType.Collider)
+            {
+                if (gameObject.TryGetComponent(out Collider collider))
+                {
+                    newBounds.Encapsulate(collider.bounds);
+                }
+            }
+            else
+            {
+                if (gameObject.TryGetComponent(out Collider collider))
+                {
+                    newBounds.Encapsulate(collider.bounds);
+                }
+
+                if (gameObject.TryGetComponent(out Renderer renderer))
+                {
+                    newBounds.Encapsulate(renderer.bounds);
+                }
             }
         }
 
@@ -201,7 +275,24 @@ public class SelectionSize : ScriptableObject
 
     private string BoundsToString(Bounds bounds)
     {
-        return $"Selection Size: ({bounds.size.x},{bounds.size.y},{bounds.size.z})";
+        string x;
+        string y;
+        string z;
+
+        if (decimals == DecimalDigitCount.All)
+        {
+            x = bounds.size.x.ToString();
+            y = bounds.size.y.ToString();
+            z = bounds.size.z.ToString();
+        }
+        else
+        {
+            x = bounds.size.x.ToString($"F{(int)decimals}");
+            y = bounds.size.y.ToString($"F{(int)decimals}");
+            z = bounds.size.z.ToString($"F{(int)decimals}");
+        }
+
+        return $"Selection Size: ({x}, {y}, {z})";
     }
 
     private static void DrawBounds(SceneView sceneView)
@@ -212,11 +303,44 @@ public class SelectionSize : ScriptableObject
         if (bounds.size == Vector3.zero)
             return;
 
-        // set the color of the bounding box
-        Handles.color = Color.red;
+        if (Instance.outlineFaceColor.a == 0)
+        {
+            // set the color of the bounding box
+            Handles.color = Instance.outlineFrameColor;
 
-        // draws the bounding box
-        Handles.DrawWireCube(bounds.center, bounds.size);
+            // draws the bounding box
+            Handles.DrawWireCube(bounds.center, bounds.size);
+        }
+        else
+        {
+            Vector3 max = bounds.max;
+            Vector3 min = bounds.min;
+            Vector3 frontTopLeft = new Vector3(min.x, max.y, max.z);
+            Vector3 frontBottomLeft = new Vector3(min.x, min.y, max.z);
+            Vector3 frontBottomRight = new Vector3(max.x, min.y, max.z);
+            Vector3 backTopRight = new Vector3(max.x, max.y, min.z);
+            Vector3 backTopLeft = new Vector3(min.x, max.y, min.z);
+            Vector3 backBottomRight = new Vector3(max.x, min.y, min.z);
 
+            // front face
+            Vector3[] frontFace = { max, frontTopLeft, frontBottomLeft, frontBottomRight };
+            // back face
+            Vector3[] backFace = { min, backBottomRight, backTopRight, backTopLeft };
+            // top face
+            Vector3[] topFace = { max, frontTopLeft, backTopLeft, backTopRight };
+            // bottom face
+            Vector3[] bottomFace = { min, backBottomRight, frontBottomRight, frontBottomLeft };
+            // right face
+            Vector3[] rightFace = { max, backTopRight, backBottomRight, frontBottomRight };
+            // left face
+            Vector3[] leftFace = { min, frontBottomLeft, frontTopLeft, backTopLeft };
+
+            Handles.DrawSolidRectangleWithOutline(frontFace, Instance.outlineFaceColor, Instance.outlineFrameColor);
+            Handles.DrawSolidRectangleWithOutline(backFace, Instance.outlineFaceColor, Instance.outlineFrameColor);
+            Handles.DrawSolidRectangleWithOutline(topFace, Instance.outlineFaceColor, Instance.outlineFrameColor);
+            Handles.DrawSolidRectangleWithOutline(bottomFace, Instance.outlineFaceColor, Instance.outlineFrameColor);
+            Handles.DrawSolidRectangleWithOutline(rightFace, Instance.outlineFaceColor, Instance.outlineFrameColor);
+            Handles.DrawSolidRectangleWithOutline(leftFace, Instance.outlineFaceColor, Instance.outlineFrameColor);
+        }
     }
 }
