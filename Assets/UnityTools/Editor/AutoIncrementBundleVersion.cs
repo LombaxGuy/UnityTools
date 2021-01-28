@@ -33,7 +33,7 @@ namespace UnityTools.Build
         }
 
         // Menu item
-        [MenuItem(menuPath)]
+        [MenuItem(menuPath, priority = 1)]
         private static void ToggleAutoBuildVersionIncrement()
         {
             enabled = !enabled;

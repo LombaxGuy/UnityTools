@@ -79,7 +79,7 @@ public class SelectionSize : ScriptableObject
         }
     }
 
-    [MenuItem(menuPath, priority = 1)]
+    [MenuItem(menuPath, priority = 101)]
     private static void ToogleMenuItem()
     {
         // toggle the enabled state of the tool
@@ -99,7 +99,7 @@ public class SelectionSize : ScriptableObject
         EditorUtility.SetDirty(Instance);
     }
 
-    [MenuItem(menuSettingsPath, priority = 2)]
+    [MenuItem(menuSettingsPath, priority = 102)]
     private static void ToolSettings()
     {
         Selection.activeObject = Instance;
