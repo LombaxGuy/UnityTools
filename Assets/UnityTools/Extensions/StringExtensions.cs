@@ -20,6 +20,19 @@
             return originalString;
         }
 
+        public static string Replace(this string originalString, int characterIndex, char replacementCharacter)
+        {
+            if (characterIndex > originalString.Length - 1 || characterIndex < 0)
+            {
+                return null;
+            }
+
+            string result = originalString.Remove(characterIndex, 1);
+            result = result.Insert(characterIndex, replacementCharacter.ToString());
+
+            return result;
+        }
+
         public static string TrimStart(this string originalString, string stringToRemove)
         {
             if (originalString.StartsWith(stringToRemove))
@@ -52,6 +65,31 @@
             trimmedString = trimmedString.TrimEnd(stringToRemove);
 
             return trimmedString;
+        }
+
+        public static int CountOf(this string originalString, char character, bool ignoreCaseing = false)
+        {
+            int count = 0;
+
+            for (int i = 0; i < originalString.Length; i++)
+            {
+                if (ignoreCaseing)
+                {
+                    if (char.ToLower(originalString[i]) == character)
+                    {
+                        count++;
+                    }
+                }
+                else
+                {
+                    if (originalString[i] == character)
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            return count;
         }
     }
 }

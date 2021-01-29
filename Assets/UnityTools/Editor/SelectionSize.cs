@@ -11,12 +11,11 @@ public class SelectionSize : ScriptableObject
 
     private const string menuPath = "Tools/UnityTools/Measuring tool";
     private const string menuSettingsPath = "Tools/UnityTools/Measuring tool settings";
+    private const string settingsAssetName = "SelectionSizeToolSettings";
+    private const string settingsAssetPath = "Assets/UnityTools/Resources/ToolSettings/" + settingsAssetName + ".asset";
     private const string lableName = "dimensions";
-    private const string settingsName = "SelectionSizeToolSettings";
-    private const string settingsPath = "Assets/UnityTools/Resources/" + settingsName + ".asset";
 
-    private static SelectionSize instance;
-
+    private static SelectionSize _instance;
 
     [Tooltip("Whether or not the tool is enabled. \n\nThe tool can be activated from the menu: \nTools > UnityTools > Measuring tool")]
     [SerializeField] [ReadOnly] private bool enabled;
@@ -42,25 +41,25 @@ public class SelectionSize : ScriptableObject
     {
         get
         {
-            if (instance == null)
+            if (_instance == null)
             {
-                instance = Resources.Load<SelectionSize>(settingsName);
+                _instance = Resources.Load<SelectionSize>(settingsAssetName);
 
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = CreateInstance<SelectionSize>();
-                    instance.name = settingsName;
+                    _instance = CreateInstance<SelectionSize>();
+                    _instance.name = settingsAssetName;
 
-                    AssetDatabase.CreateAsset(instance, settingsPath);
+                    AssetDatabase.CreateAsset(_instance, settingsAssetPath);
 
                     AssetDatabase.Refresh();
                 }
 
-                return instance;
+                return _instance;
             }
             else
             {
-                return instance;
+                return _instance;
             }
         }
     }
