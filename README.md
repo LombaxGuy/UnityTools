@@ -4,11 +4,6 @@ Tools for Unity to help speed up development time.
 
 <B>Contents</B>
 
-\- Attributes \- <br>
-Conditional field attribute. <br>
-ReadOnly field attribute. <br>
-Max field attribute. <br>
-
 \- Events \- <br>
 CustomEvents class & GameEvents example class. <br>
 
@@ -24,29 +19,30 @@ InGameDebug script & prefab for displaying log messages ingame. <br>
 \- Tools \- <br>
 Tool for numbering selected gameobjects. <br>
 Build post processing script for automatically incrementing bundle id. <br>
+Tool for measuring the bounding box of selected objects. <br>
 
-\- Cinemachine extensions \- <br>
-LockCameraAxis for locking virtual cameras to specfic positions on the x, y and z axis. <br>
-
-\- Unity extensions \- <br>
-Vector3 extension for creating random directional vectors. <br>
-SerializedProperty extension for getting the value of a property as an object. <br>
-
-\- Other extensions \- <br>
-Type extension for checking if a type is numeric. <br>
-Array extensions for getting and setting the last elements. <br>
+\- Various extensions & Attributes \- <br>
 
 <B>Change log</B>
 
-<B>\- 1.4 (Work in progress)\-</B>
+<B>\- 1.4 (Latest release)\-</B>
 Added:
-- DebugRay now has an Empty, an Equals and a Draw method to make it easier to use.
+- DebugRay now has an Empty, Equals and Draw methods to make it easier to use.
+- An array extensions called contains has been added.
+- A class containing string extensions has been added.
+- A class containing int extensions has been added.
+- A tool for measuring all selected objects bounding box has been added.
 
 Changed:
-- Numbering tool now saves settings in EditorPrefs.
+- Numbering tool now saves settings in a Scriptable Object.
 - AutoIncrementBundleVersion now saves settings in EditorPrefs.
+- The GetLast and SetLast array extensions has been renamed to Last.
+- Seperators has been added to the tool menu.
 
-<B>\- 1.3 (Latest release)\-</B>
+Bugfix:
+- The checkmark on the menu item for AutoIncrementBundleVersion should now be displayed correctly.
+
+<B>\- 1.3 \-</B>
 
 Added:
 - Tool for numbering multiple GameObjects at once.
