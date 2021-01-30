@@ -25,7 +25,7 @@ Tool for measuring the bounding box of selected objects. <br>
 
 <B>Change log</B>
 
-<B>\- 1.4 \-(Latest release)</B>
+<B>\- 1.4 \- (Latest release) </B>
 Added:
 - DebugRay now has an Empty, Equals and Draw methods to make it easier to use.
 - An array extensions called contains has been added.
