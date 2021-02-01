@@ -1,51 +1,59 @@
-﻿using System.Diagnostics;
+﻿using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityTools.Extensions;
 
-namespace UnityTools.Build
+namespace UnityTools.Tools
 {
-    public class AutoIncrementBundleVersion : Editor
+    public class AutoIncrementBundleVersion : ScriptableObject
     {
         private const string menuPath = "Tools/UnityTools/Auto increment version";
+        private const string settingsAssetName = "AutoIncrementBundleVersion";
+        private const string settingsAssetPath = "Assets/UnityTools/Resources/ToolSettings/" + settingsAssetName + ".asset";
 
-        private static bool enabled = true;
+        private static AutoIncrementBundleVersion _instance;
 
-        private const string enabledKey = "UnityTools.AutoIncrementBundleVersion.enabled";
+        [SerializeField] private bool enabled = false;
 
-        [InitializeOnLoadMethod]
-        private static void OnRecompile()
+        public static AutoIncrementBundleVersion Instance
         {
-            LoadEditorPrefs();
-        }
-
-        private static void LoadEditorPrefs()
-        {
-            if (EditorPrefs.HasKey(enabledKey))
+            get
             {
-                enabled = EditorPrefs.GetBool(enabledKey);
-            }
-        }
+                if (_instance == null)
+                {
+                    _instance = Resources.Load<AutoIncrementBundleVersion>(settingsAssetName);
 
-        private static void SaveEditorPrefs()
-        {
-            EditorPrefs.SetBool(enabledKey, enabled);
+                    if (_instance == null)
+                    {
+                        _instance = CreateInstance<AutoIncrementBundleVersion>();
+                        _instance.name = settingsAssetName;
+
+                        AssetDatabase.CreateAsset(_instance, settingsAssetPath);
+
+                        AssetDatabase.Refresh();
+                    }
+
+                    return _instance;
+                }
+                else
+                {
+                    return _instance;
+                }
+            }
         }
 
         // Menu item
         [MenuItem(menuPath, priority = 1)]
         private static void ToggleAutoBuildVersionIncrement()
         {
-            enabled = !enabled;
-
-            SaveEditorPrefs();
+            Instance.enabled = !Instance.enabled;
         }
 
         // Validate function for above menu item
         [MenuItem(menuPath, true)]
         private static bool ToggleAutoBuildVersionIncrementValidate()
         {
-            Menu.SetChecked(menuPath, enabled);
+            Menu.SetChecked(menuPath, Instance.enabled);
 
             return true;
         }
@@ -53,7 +61,7 @@ namespace UnityTools.Build
         [PostProcessBuild]
         private static void IncrementBuildNumberOnBuild(BuildTarget targetPlatform, string buildPath)
         {
-            if (!enabled)
+            if (!Instance.enabled)
                 return;
 
             string version = PlayerSettings.bundleVersion;

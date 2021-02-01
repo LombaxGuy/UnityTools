@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityTools.Extensions;
 
-namespace UnityTools
+namespace UnityTools.Tools
 {
     public class Numbering : ScriptableObject
     {
